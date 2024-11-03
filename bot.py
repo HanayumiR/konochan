@@ -52,7 +52,7 @@ def format_message(user_id, normal_message, tsundere_message):
 async def on_ready():
     await bot.tree.sync()
     await bot.change_presence(activity=discord.Game(name="📖みなさんのお手伝い中！"))
-    print("河野ちゃん Ver.1.0(正式版)　　起動しました！")
+    print("河野ちゃん Ver.1.2(正式版)　　起動しました！")
 
 @bot.tree.command(name="set_schedule", description="今日の目標を設定します。使用例: /set_schedule 目標")
 async def set_schedule(interaction: discord.Interaction, task: str):
@@ -123,19 +123,23 @@ async def set_reminder(interaction: discord.Interaction, time: str):
         )
         return
 
+
     user_data[user_id]['reminder_time'] = normalize_time(time)
     save_data()
 
-    await interaction.response.send_message(
+    await interaction.response.defer()  
+
+    await interaction.followup.send(
         format_message(user_id, 
                        f"{interaction.user.mention}さん、{user_data[user_id]['reminder_time']}に勉強の時間をお知らせしますね。", 
                        f"{interaction.user.mention}がサボらないためにも、{user_data[user_id]['reminder_time']}になったら教えてあげるわよ。感謝しなさいよね！")
     )
 
+
     while 'reminder_time' in user_data[user_id]:
         now = datetime.now().strftime("%H:%M")
         if now == user_data[user_id]['reminder_time']:
-            await interaction.channel.send(
+            await interaction.user.send(
                 format_message(user_id, 
                                f"{interaction.user.mention}さん、勉強の時間ですよ～！一緒に頑張りましょう！", 
                                f"ねぇ{interaction.user.mention}、アンタがサボろうとしてたの、見逃さないからね！今すぐ始めるわよ！")
@@ -144,6 +148,7 @@ async def set_reminder(interaction: discord.Interaction, time: str):
             save_data()
             break
         await asyncio.sleep(60)
+
 
 @bot.tree.command(name="remove_reminder", description="設定したリマインダーを削除します。")
 async def remove_reminder(interaction: discord.Interaction):
@@ -177,4 +182,4 @@ async def change(interaction: discord.Interaction):
             f"さぁ、{interaction.user.mention}さん、今日も頑張りましょう！"
         )
 
-bot.run("#ここにdiscordbot用トークンを置き換え")
+bot.run("ん、トークンを置き換えるべき")
