@@ -1,7 +1,8 @@
 import discord
 from discord.ext import commands
 from discord import app_commands
-from datetime import datetime
+from datetime import datetime,date
+import random
 import asyncio
 import json
 import os
@@ -52,7 +53,7 @@ def format_message(user_id, normal_message, tsundere_message):
 async def on_ready():
     await bot.tree.sync()
     await bot.change_presence(activity=discord.Game(name="📖みなさんのお手伝い中！"))
-    print("河野ちゃん Ver.1.2(正式版)　　起動しました！")
+    print("河野ちゃん Ver.1.3(正式版)　　起動しました！")
 
 @bot.tree.command(name="set_schedule", description="今日の目標を設定します。使用例: /set_schedule 目標")
 async def set_schedule(interaction: discord.Interaction, task: str):
@@ -144,8 +145,6 @@ async def set_reminder(interaction: discord.Interaction, time: str):
                                f"{interaction.user.mention}さん、勉強の時間ですよ～！一緒に頑張りましょう！", 
                                f"ねぇ{interaction.user.mention}、アンタがサボろうとしてたの、見逃さないからね！今すぐ始めるわよ！")
             )
-            del user_data[user_id]['reminder_time']
-            save_data()
             break
         await asyncio.sleep(60)
 
@@ -181,5 +180,36 @@ async def change(interaction: discord.Interaction):
         await interaction.response.send_message(
             f"さぁ、{interaction.user.mention}さん、今日も頑張りましょう！"
         )
+
+
+last_omikuji = {}
+omikuji_results = [
+    "大吉", "中吉", "小吉", "吉", "末吉", "凶", "大凶"
+]
+omikuji_emb = [
+    "https://twitter.com/benkyousitebot/status/1852333173528842749", "https://www.nicovideo.jp/watch/sm44268865", "https://twitter.com/benkyousitebot/status/1851942910239084598", "https://twitter.com/benkyousitebot/status/1851021658964087008", "https://twitter.com/benkyousitebot/status/1847227479070785858", "https://twitter.com/benkyousitebot/status/1847844988643844297", "https://twitter.com/benkyousitebot/status/1847434518518804549", "https://twitter.com/benkyousitebot/status/1847768371326308590"
+]
+@bot.tree.command(name="omikuji", description="今日の運勢を占います。")
+async def omikuji(interaction: discord.Interaction):
+    user_id = str(interaction.user.id)
+    today = date.today().isoformat()
+    
+    if last_omikuji.get(user_id) == today:
+        await interaction.response.send_message(
+            format_message(user_id,
+                           f"{interaction.user.mention}さん、おみくじは1日1回までですよ！また明日、ここで待ってますから♪",
+                           f"{interaction.user.mention}、今日のおみくじはもうおしまい。悔しいのならまた明日くることね。")
+        )
+        return
+
+    result = random.choice(omikuji_results)
+    result_emb = random.choice(omikuji_emb)
+    last_omikuji[user_id] = today 
+
+    await interaction.response.send_message(
+        format_message(user_id,
+                       f"{interaction.user.mention}さんの今日の運勢は... **{result}** です！いい一日になりますように♪{result_emb}",
+                       f"{interaction.user.mention}、今日の運勢は **{result}** よ。しっかり頑張りなさいよね！{result_emb}")
+    )
 
 bot.run("ん、トークンを置き換えるべき")
