@@ -53,7 +53,7 @@ def format_message(user_id, normal_message, tsundere_message):
 async def on_ready():
     await bot.tree.sync()
     await bot.change_presence(activity=discord.Game(name="📖みなさんのお手伝い中！"))
-    print("河野ちゃん Ver.1.3(正式版)　　起動しました！")
+    print("河野ちゃん Ver.1.4(正式版)　　起動しました！")
 
 @bot.tree.command(name="set_schedule", description="今日の目標を設定します。使用例: /set_schedule 目標")
 async def set_schedule(interaction: discord.Interaction, task: str):
@@ -84,7 +84,8 @@ async def finish_schedule(interaction: discord.Interaction):
                            f"あら、{interaction.user.mention}。今日は{task}を {int(hours)} 時間 {int(minutes)} 分間やったのね。少しはやるじゃない、お疲れ様。　...べつに少しくらいは褒めてあげるわよ。")
         )
         
-        del user_data[user_id]
+        del user_data[user_id]['task']
+        del user_data[user_id]['start_time']
         save_data()
     else:
         await interaction.response.send_message(
